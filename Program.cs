@@ -43,13 +43,68 @@ namespace PocketMoney
             }
             else
             {
-                AccountDetails(names[choice-1]);
+                accountChoices(names[choice-1]);
             }
 
             //if == 0 .. then create new account ... redisplay the above
             //if > 1 .. then AccountDetails(names[choice-1])
         }
-        
+
+        private void accountChoices(string name)
+        {
+            Console.WriteLine("Would you like to"); 
+            Console.WriteLine("[0] add to your account");
+            Console.WriteLine("[1] or subtract from your account");
+
+            var choice = Console.ReadLine();
+            bool isAdding = true;
+
+            switch (choice)
+            {
+                case "0" :
+                    Console.Write("How much money have you gained: £");
+                    break;
+
+                default: 
+                    Console.WriteLine("How much money have you spent: £");
+                    isAdding = false;
+                    break;
+            } 
+            var input = Console.ReadLine();
+            int pence = conversion(input);   
+            
+            if (isAdding == false)
+            {
+                pence = pence * -1;
+            }
+
+            Console.Write("And what was the reason: ");
+            string reason = Console.ReadLine();
+
+            addMoney(pence, reason, readMoneyFromFile($"Accounts/{name}/Money.txt"), name);
+        }
+
+        private int conversion(string input)
+        {
+            var pence = 0;
+
+            try
+            {
+                pence += int.Parse(input) * 100;
+            }
+            catch
+            {
+                var values = input.Split(".");
+                pence += int.Parse(values[0]) * 100;
+                if (values[1].Length < 2 )// when 0.5 is entered it means 0.50 
+                {
+                   pence += int.Parse(values[1]) * 10;
+                }
+                else pence += int.Parse(values[1]);
+            }
+            return pence;
+        }
+
         private string startAccount()
         {
             Console.WriteLine("Please enter your name");
@@ -80,43 +135,6 @@ namespace PocketMoney
 
             addMoney(0, statment, startBalance, name);
             return name;
-        }
-
-        private void homepageActions(int choice, string name)
-        {
-            switch (choice)
-            {
-                case 1 : AccountDetails(name); 
-                    break;
-            }
-        }
-
-        private void AccountDetails(string name)
-        {
-            Console.Write($"How much money has {name} gained: £");
-            var input = Console.ReadLine();
-            int gainInPence = 0;
-            try
-            {
-                int inputMoney = int.Parse(input);
-                gainInPence += inputMoney * 100;
-            }
-            catch
-            {
-                var values = input.Split(".");
-                gainInPence += int.Parse(values[0]) * 100;
-                if (values[1].Length < 2 )
-                {
-                   gainInPence += int.Parse(values[1]) * 10;
-                }
-                else gainInPence += int.Parse(values[1]);
-            }
-            
-
-            Console.Write("And what was the reason: ");
-            string reason = Console.ReadLine();
-
-            addMoney(gainInPence, reason, readMoneyFromFile($"Accounts/{name}/Money.txt"), name);
         }
         
         private void addMoney(int moneyNumber, string inReason, int startBalance, string name)
